@@ -12,14 +12,18 @@ import winrm
 
 hostname='172.30.126.231'
 # hostname='WIN-OJ3IKT2C0C9'
-username='administrator'
+username='win\\administrator'
 password='Passw0rd'
 cmd='hostname'
+cmd='chcp 65001;Get-SCVMHost'
+#cmd="""chcp 65001;ls"""
+cmd="ls"
 
-wintest = winrm.Session('http://'+hostname+':5985/wsman',auth=(username,password))
-ret = wintest.run_cmd(cmd)
+wintest = winrm.Session('http://'+hostname+':5985/wsman',auth=(username,password), transport='ntlm')
+#ret = wintest.run_cmd(cmd)
+ret = wintest.run_ps(cmd)
 print("ret:", ret)
-print("std_out:", ret.std_out.decode())
+print("std_out:", ret.std_out.decode('utf-8'))
 print("std_err:", ret.std_err)
 
 

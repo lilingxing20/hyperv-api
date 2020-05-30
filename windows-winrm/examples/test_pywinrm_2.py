@@ -8,7 +8,8 @@ File Name   : test_pywinrm_2.py
 Description : 
 '''
 
-
+from __future__ import unicode_literals
+from base64 import b64encode
 from winrm.protocol import Protocol
 
 
@@ -19,16 +20,19 @@ p = Protocol(
     username=r'win\administrator',
     #username=r'administrator',
     password='Passw0rd',
-    #server_cert_validation='ignore'
+    server_cert_validation='ignore'
     )
 
 shell_id = p.open_shell()
 #command_id = p.run_command(shell_id, 'ipconfig', ['/all'])
-command_id = p.run_command(shell_id, 'Get-SCVMHost', [])
+script='ls'
+encoded_ps = b64encode(script.encode('utf_16_le')).decode('utf-8')
+p.run_command(shell_id, 'chcp 65001', [])
+command_id = p.run_command(shell_id, 'powershell -encodedcommand {0}'.format(encoded_ps), [])
 std_out, std_err, status_code = p.get_command_output(shell_id, command_id)
 p.cleanup_command(shell_id, command_id)
 p.close_shell(shell_id)
-print(std_out)
+print(std_out.decode('utf-8'))
 print(std_err)
 print(status_code)
 
